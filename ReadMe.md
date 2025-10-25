@@ -6,9 +6,9 @@
 ### Sexto Semestre
 ### **Materia:** Autómatas y Lenguajes Formales
   
-### **Integrantes:** [Astrid Mileidy Peña Polanco	0907-23-5304]
-### [María José Del Carmen Portillo López	0907-23-4166]  
-### **Fecha:** [25 de octubre del 2025]  
+### **Integrantes:** - Astrid Mileidy Peña Polanco	0907-23-5304
+### - María José Del Carmen Portillo López	0907-23-4166
+### **Fecha:** 25 de octubre del 2025
 
 ---
 
