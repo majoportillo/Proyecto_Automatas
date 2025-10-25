@@ -1,5 +1,5 @@
 import tkinter as tk
-from tkinter import ttk, scrolledtext, filedialog, messagebox
+from tkinter import scrolledtext, filedialog, messagebox
 import re
 import urllib.request
 
@@ -7,103 +7,207 @@ class BuscadorRegex:
     def __init__(self, root):
         self.root = root
         self.root.title("Buscador de Patrones - Expresiones Regulares")
-        self.root.geometry("900x700")
+        self.root.geometry("1100x700")
+        self.root.resizable(True, True)
+        self.root.minsize(900, 600)
         
-        # Variable para almacenar el texto
+        self.bg_color = "#1a1a2e"
+        self.frame_color = "#16213e"
+        self.accent_color = "#e94560"
+        self.text_color = "#eef0f2"
+        self.button_color = "#533483"
+        
+        self.root.configure(bg=self.bg_color)
         self.texto_actual = ""
         
         self.crear_interfaz()
     
     def crear_interfaz(self):
-        # Frame principal
-        main_frame = ttk.Frame(self.root, padding="10")
-        main_frame.grid(row=0, column=0, sticky=(tk.W, tk.E, tk.N, tk.S))
+        main_frame = tk.Frame(self.root, bg=self.bg_color)
+        main_frame.pack(fill='both', expand=True, padx=20, pady=20)
         
-        # Configurar peso de filas y columnas
-        self.root.columnconfigure(0, weight=1)
-        self.root.rowconfigure(0, weight=1)
-        main_frame.columnconfigure(0, weight=1)
-        main_frame.rowconfigure(2, weight=1)
-        main_frame.rowconfigure(4, weight=1)
+        titulo = tk.Label(
+            main_frame,
+            text="BUSCADOR DE PATRONES",
+            font=("Arial", 20, "bold"),
+            bg=self.bg_color,
+            fg=self.text_color
+        )
+        titulo.pack(pady=(0, 15))
         
-        # === SECCIÓN DE ENTRADA ===
-        entrada_frame = ttk.LabelFrame(main_frame, text="Fuente de Texto", padding="10")
-        entrada_frame.grid(row=0, column=0, sticky=(tk.W, tk.E), pady=5)
-        entrada_frame.columnconfigure(1, weight=1)
+        entrada_frame = tk.Frame(main_frame, bg=self.frame_color)
+        entrada_frame.pack(fill='x', pady=(0, 10))
         
-        # Botones de entrada
-        ttk.Button(entrada_frame, text="Cargar Archivo", 
-                   command=self.cargar_archivo).grid(row=0, column=0, padx=5, pady=5)
-        ttk.Button(entrada_frame, text="Cargar URL", 
-                   command=self.cargar_url).grid(row=0, column=1, padx=5, pady=5)
-        ttk.Button(entrada_frame, text="Ingresar Texto", 
-                   command=self.ingresar_texto).grid(row=0, column=2, padx=5, pady=5)
+        tk.Label(
+            entrada_frame,
+            text="Fuente de Texto",
+            font=("Arial", 11, "bold"),
+            bg=self.frame_color,
+            fg=self.text_color
+        ).pack(pady=(8, 8))
         
-        # Label para mostrar origen
-        self.label_origen = ttk.Label(entrada_frame, text="No hay texto cargado", 
-                                      foreground="gray")
-        self.label_origen.grid(row=1, column=0, columnspan=3, pady=5)
+        botones_entrada = tk.Frame(entrada_frame, bg=self.frame_color)
+        botones_entrada.pack(pady=(0, 8))
         
-        # === SECCIÓN DE BÚSQUEDA ===
-        busqueda_frame = ttk.LabelFrame(main_frame, text="Expresión Regular", padding="10")
-        busqueda_frame.grid(row=1, column=0, sticky=(tk.W, tk.E), pady=5)
-        busqueda_frame.columnconfigure(1, weight=1)
+        self.crear_boton(botones_entrada, "Cargar Archivo", self.cargar_archivo).pack(side='left', padx=5)
+        self.crear_boton(botones_entrada, "Cargar URL", self.cargar_url).pack(side='left', padx=5)
+        self.crear_boton(botones_entrada, "Ingresar Texto", self.ingresar_texto).pack(side='left', padx=5)
         
-        ttk.Label(busqueda_frame, text="Patrón:").grid(row=0, column=0, padx=5, sticky=tk.W)
-        self.entry_regex = ttk.Entry(busqueda_frame, width=50)
-        self.entry_regex.grid(row=0, column=1, padx=5, sticky=(tk.W, tk.E))
+        self.label_origen = tk.Label(
+            entrada_frame,
+            text="No hay texto cargado",
+            font=("Arial", 9),
+            bg=self.frame_color,
+            fg="#a0a0a0"
+        )
+        self.label_origen.pack(pady=(0, 8))
         
-        ttk.Button(busqueda_frame, text="Buscar", 
-                   command=self.buscar_coincidencias).grid(row=0, column=2, padx=5)
+        busqueda_frame = tk.Frame(main_frame, bg=self.frame_color)
+        busqueda_frame.pack(fill='x', pady=(0, 10))
         
-        # Opciones de búsqueda
-        opciones_frame = ttk.Frame(busqueda_frame)
-        opciones_frame.grid(row=1, column=0, columnspan=3, pady=5)
+        tk.Label(
+            busqueda_frame,
+            text="Expresión Regular",
+            font=("Arial", 11, "bold"),
+            bg=self.frame_color,
+            fg=self.text_color
+        ).pack(pady=(8, 8))
+        
+        regex_input_frame = tk.Frame(busqueda_frame, bg=self.frame_color)
+        regex_input_frame.pack(pady=(0, 8), padx=20, fill='x')
+        
+        tk.Label(
+            regex_input_frame,
+            text="Patrón:",
+            font=("Arial", 10),
+            bg=self.frame_color,
+            fg=self.text_color
+        ).pack(side='left', padx=(0, 10))
+        
+        self.entry_regex = tk.Entry(
+            regex_input_frame,
+            font=("Consolas", 11),
+            bg="#2a2a3e",
+            fg=self.text_color,
+            insertbackground=self.text_color,
+            relief='flat',
+            bd=0
+        )
+        self.entry_regex.pack(side='left', fill='x', expand=True, ipady=8, ipadx=10)
+        
+        self.crear_boton(regex_input_frame, "Buscar", self.buscar_coincidencias).pack(side='left', padx=(10, 0))
         
         self.case_sensitive = tk.BooleanVar(value=False)
-        ttk.Checkbutton(opciones_frame, text="Ignorar mayúsculas/minúsculas", 
-                       variable=self.case_sensitive).pack(side=tk.LEFT, padx=5)
+        check = tk.Checkbutton(
+            busqueda_frame,
+            text="Ignorar mayúsculas/minúsculas",
+            variable=self.case_sensitive,
+            font=("Arial", 9),
+            bg=self.frame_color,
+            fg=self.text_color,
+            selectcolor="#2a2a3e",
+            activebackground=self.frame_color,
+            activeforeground=self.text_color
+        )
+        check.pack(pady=(0, 8))
         
-        # === ÁREA DE TEXTO ===
-        texto_frame = ttk.LabelFrame(main_frame, text="Texto", padding="10")
-        texto_frame.grid(row=2, column=0, sticky=(tk.W, tk.E, tk.N, tk.S), pady=5)
-        texto_frame.columnconfigure(0, weight=1)
-        texto_frame.rowconfigure(0, weight=1)
+        texto_frame = tk.Frame(main_frame, bg=self.frame_color)
+        texto_frame.pack(fill='both', expand=True, pady=(0, 10))
         
-        self.text_area = scrolledtext.ScrolledText(texto_frame, wrap=tk.WORD, 
-                                                    height=15, width=80)
-        self.text_area.grid(row=0, column=0, sticky=(tk.W, tk.E, tk.N, tk.S))
+        tk.Label(
+            texto_frame,
+            text="Texto",
+            font=("Arial", 11, "bold"),
+            bg=self.frame_color,
+            fg=self.text_color
+        ).pack(pady=(8, 5))
         
-        # === ÁREA DE RESULTADOS ===
-        resultados_frame = ttk.LabelFrame(main_frame, text="Coincidencias", padding="10")
-        resultados_frame.grid(row=3, column=0, sticky=(tk.W, tk.E), pady=5)
+        self.text_area = scrolledtext.ScrolledText(
+            texto_frame,
+            wrap=tk.WORD,
+            height=10,
+            font=("Consolas", 10),
+            bg="#2a2a3e",
+            fg=self.text_color,
+            insertbackground=self.text_color,
+            relief='flat',
+            bd=0
+        )
+        self.text_area.pack(fill='both', expand=True, padx=10, pady=(0, 8))
         
-        self.label_contador = ttk.Label(resultados_frame, text="0 coincidencias encontradas")
-        self.label_contador.pack(anchor=tk.W, pady=5)
+        resultados_frame = tk.Frame(main_frame, bg=self.frame_color)
+        resultados_frame.pack(fill='both', expand=True)
         
-        # Opciones de resultados
-        opciones_resultado_frame = ttk.Frame(resultados_frame)
-        opciones_resultado_frame.pack(fill=tk.X, pady=5)
+        header_resultados = tk.Frame(resultados_frame, bg=self.frame_color)
+        header_resultados.pack(fill='x', pady=(8, 5))
         
-        ttk.Button(opciones_resultado_frame, text="Guardar Coincidencias", 
-                   command=self.guardar_coincidencias).pack(side=tk.LEFT, padx=5)
-        ttk.Button(opciones_resultado_frame, text="Limpiar", 
-                   command=self.limpiar_todo).pack(side=tk.LEFT, padx=5)
+        tk.Label(
+            header_resultados,
+            text="Coincidencias",
+            font=("Arial", 11, "bold"),
+            bg=self.frame_color,
+            fg=self.text_color
+        ).pack(side='left', padx=(10, 20))
         
-        # Lista de resultados
-        list_frame = ttk.Frame(main_frame)
-        list_frame.grid(row=4, column=0, sticky=(tk.W, tk.E, tk.N, tk.S), pady=5)
-        list_frame.columnconfigure(0, weight=1)
-        list_frame.rowconfigure(0, weight=1)
+        self.label_contador = tk.Label(
+            header_resultados,
+            text="0 coincidencias encontradas",
+            font=("Arial", 9),
+            bg=self.frame_color,
+            fg="#a0a0a0"
+        )
+        self.label_contador.pack(side='left')
         
-        self.resultados_text = scrolledtext.ScrolledText(list_frame, wrap=tk.WORD, 
-                                                          height=10, width=80)
-        self.resultados_text.grid(row=0, column=0, sticky=(tk.W, tk.E, tk.N, tk.S))
+        botones_resultado = tk.Frame(resultados_frame, bg=self.frame_color)
+        botones_resultado.pack(pady=(0, 8))
+        
+        self.crear_boton(botones_resultado, "Guardar Coincidencias", self.guardar_coincidencias).pack(side='left', padx=5)
+        self.crear_boton(botones_resultado, "Limpiar", self.limpiar_todo).pack(side='left', padx=5)
+        
+        self.resultados_text = scrolledtext.ScrolledText(
+            resultados_frame,
+            wrap=tk.WORD,
+            height=6,
+            font=("Consolas", 9),
+            bg="#2a2a3e",
+            fg=self.text_color,
+            insertbackground=self.text_color,
+            relief='flat',
+            bd=0
+        )
+        self.resultados_text.pack(fill='both', expand=True, padx=10, pady=(0, 8))
+    
+    def crear_boton(self, parent, texto, comando):
+        btn = tk.Button(
+            parent,
+            text=texto,
+            command=comando,
+            font=("Arial", 10),
+            bg=self.button_color,
+            fg=self.text_color,
+            activebackground=self.lighten_color(self.button_color),
+            activeforeground=self.text_color,
+            relief='flat',
+            bd=0,
+            cursor="hand2",
+            padx=15,
+            pady=8
+        )
+        
+        btn.bind("<Enter>", lambda e: btn.config(bg=self.lighten_color(self.button_color)))
+        btn.bind("<Leave>", lambda e: btn.config(bg=self.button_color))
+        
+        return btn
+    
+    def lighten_color(self, color):
+        color = color.lstrip('#')
+        r, g, b = int(color[0:2], 16), int(color[2:4], 16), int(color[4:6], 16)
+        r, g, b = min(255, r + 40), min(255, g + 40), min(255, b + 40)
+        return f'#{r:02x}{g:02x}{b:02x}'
     
     def cargar_archivo(self):
-        """Cargar texto desde un archivo"""
         filename = filedialog.askopenfilename(
-            title="Seleccionar archivo",
+            title="Seleccione archivo",
             filetypes=[("Archivos de texto", "*.txt"), ("Todos los archivos", "*.*")]
         )
         
@@ -113,19 +217,34 @@ class BuscadorRegex:
                     self.texto_actual = file.read()
                     self.text_area.delete(1.0, tk.END)
                     self.text_area.insert(1.0, self.texto_actual)
-                    self.label_origen.config(text=f"Archivo: {filename}", foreground="green")
+                    self.label_origen.config(text=f"Archivo: {filename}", fg="#4ecca3")
             except Exception as e:
                 messagebox.showerror("Error", f"No se pudo cargar el archivo:\n{str(e)}")
     
     def cargar_url(self):
-        """Cargar texto desde una URL"""
         dialog = tk.Toplevel(self.root)
         dialog.title("Cargar desde URL")
-        dialog.geometry("400x100")
+        dialog.geometry("450x150")
+        dialog.configure(bg=self.frame_color)
         
-        ttk.Label(dialog, text="URL:").pack(pady=10, padx=10, anchor=tk.W)
-        url_entry = ttk.Entry(dialog, width=50)
-        url_entry.pack(pady=5, padx=10)
+        tk.Label(
+            dialog,
+            text="URL:",
+            font=("Arial", 11),
+            bg=self.frame_color,
+            fg=self.text_color
+        ).pack(pady=(20, 5), padx=20, anchor='w')
+        
+        url_entry = tk.Entry(
+            dialog,
+            font=("Arial", 10),
+            bg="#2a2a3e",
+            fg=self.text_color,
+            insertbackground=self.text_color,
+            relief='flat',
+            bd=0
+        )
+        url_entry.pack(pady=5, padx=20, fill='x', ipady=8, ipadx=10)
         
         def descargar():
             url = url_entry.get()
@@ -135,30 +254,26 @@ class BuscadorRegex:
                         self.texto_actual = response.read().decode('utf-8')
                         self.text_area.delete(1.0, tk.END)
                         self.text_area.insert(1.0, self.texto_actual)
-                        self.label_origen.config(text=f"URL: {url}", foreground="green")
+                        self.label_origen.config(text=f"URL: {url}", fg="#4ecca3")
                         dialog.destroy()
                 except Exception as e:
                     messagebox.showerror("Error", f"No se pudo cargar la URL:\n{str(e)}")
         
-        ttk.Button(dialog, text="Cargar", command=descargar).pack(pady=10)
+        self.crear_boton(dialog, "Cargar", descargar).pack(pady=15)
     
     def ingresar_texto(self):
-        """Permitir ingresar texto directamente"""
         self.text_area.delete(1.0, tk.END)
         self.texto_actual = ""
-        self.label_origen.config(text="Ingrese su texto en el área de texto", 
-                                foreground="blue")
+        self.label_origen.config(text="Ingrese su texto en el área de texto", fg="#4ecca3")
         self.text_area.focus()
     
     def buscar_coincidencias(self):
-        """Buscar coincidencias de la expresión regular"""
         patron = self.entry_regex.get()
         
         if not patron:
             messagebox.showwarning("Advertencia", "Por favor ingrese una expresión regular")
             return
         
-        # Obtener el texto actual del área de texto
         self.texto_actual = self.text_area.get(1.0, tk.END)
         
         if not self.texto_actual.strip():
@@ -166,36 +281,24 @@ class BuscadorRegex:
             return
         
         try:
-            # Configurar flags
             flags = re.IGNORECASE if self.case_sensitive.get() else 0
-            
-            # Buscar coincidencias
             coincidencias = list(re.finditer(patron, self.texto_actual, flags))
             
-            # Limpiar resultados anteriores
             self.resultados_text.delete(1.0, tk.END)
-            
-            # Actualizar contador
             self.label_contador.config(text=f"{len(coincidencias)} coincidencias encontradas")
             
             if coincidencias:
-                # Resaltar en el texto
                 self.text_area.tag_remove("highlight", 1.0, tk.END)
-                self.text_area.tag_config("highlight", background="yellow")
+                self.text_area.tag_config("highlight", background="#e94560", foreground="#ffffff")
                 
-                # Mostrar resultados
-                lineas = self.texto_actual.split('\n')
                 for i, match in enumerate(coincidencias, 1):
-                    # Encontrar número de línea
                     pos = match.start()
                     linea_num = self.texto_actual[:pos].count('\n') + 1
                     
-                    # Resaltar en el área de texto
                     start_idx = f"1.0+{match.start()}c"
                     end_idx = f"1.0+{match.end()}c"
                     self.text_area.tag_add("highlight", start_idx, end_idx)
                     
-                    # Agregar a resultados
                     resultado = f"[{i}] Línea {linea_num}: {match.group()}\n"
                     self.resultados_text.insert(tk.END, resultado)
             else:
@@ -206,7 +309,6 @@ class BuscadorRegex:
                                f"La expresión regular es inválida:\n{str(e)}")
     
     def guardar_coincidencias(self):
-        """Guardar las coincidencias en un archivo"""
         contenido = self.resultados_text.get(1.0, tk.END)
         
         if not contenido.strip() or contenido.strip() == "No se encontraron coincidencias":
@@ -230,12 +332,11 @@ class BuscadorRegex:
                 messagebox.showerror("Error", f"No se pudo guardar el archivo:\n{str(e)}")
     
     def limpiar_todo(self):
-        """Limpiar todas las áreas"""
         self.text_area.delete(1.0, tk.END)
         self.resultados_text.delete(1.0, tk.END)
         self.entry_regex.delete(0, tk.END)
         self.texto_actual = ""
-        self.label_origen.config(text="No hay texto cargado", foreground="gray")
+        self.label_origen.config(text="No hay texto cargado", fg="#a0a0a0")
         self.label_contador.config(text="0 coincidencias encontradas")
         self.text_area.tag_remove("highlight", 1.0, tk.END)
 
